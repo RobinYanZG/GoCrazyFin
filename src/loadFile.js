@@ -1,6 +1,7 @@
 const XLSX = require('xlsx');
 
 const handleSales = require('./handleSales');
+const handleRecords = require('./handleRecords');
 
 const workbook = XLSX.readFile(`${__dirname}/file/test.xlsx`, { cellDates: true });
 
@@ -24,6 +25,8 @@ const filterTimeCards = (data) => data.filter( d => d['卡类型'] === '时限�
 const sales = generateData(salesSheetName, filterEmptySalesData);
 const numberCards = generateData(cardsSheetName, filterNumberCards);
 const timeCards = generateData(cardsSheetName, filterTimeCards);
+const records = generateData(recordSheetName, filterEmptySalesData);
 
 const salesData = handleSales(sales, numberCards, timeCards);
 
+const data = handleRecords(records, salesData);

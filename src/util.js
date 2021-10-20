@@ -11,6 +11,13 @@ const groupByMonth = (data, dateKey) => {
     return returnObj;
 }
 
+const loopByMonth = (data, fn) => {
+    const month = Object.keys(data);
+
+    return month.map((m) => fn(m, data[m]));
+}
+
 module.exports = {
-    groupByMonth
+    groupByMonth,
+    loopByMonth
 };

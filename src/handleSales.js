@@ -31,22 +31,22 @@ const calculateTimeUnitPrice = (d) => {
         return d['实际成交价格'] / unitPrice;
 }
 
-module.exports = handleSales = (salesData, numberCards, timeCards) => {
-    const returnData = {};
+const getTotalDataByMonth = (salesData, numberCards, timeCards) => {
+    const totalDataByMonth = {};
     const monthlyData = groupByMonth(salesData, '购买日期');
     const month = Object.keys(monthlyData);
     month.forEach((m) => {
-        returnData[m] = {
+        totalDataByMonth[m] = {
             amount: 0,
             time: [],
             number: []
         };
 
         monthlyData[m].forEach(d => {
-            returnData[m].amount += d['实际成交价格'];
+            totalDataByMonth[m].amount += d['实际成交价格'];
             if(numberCards.find(c => c['编号'] === d['卡类'])) {
                 d.unitPrice = calculateNumberUnitPrice(d, numberCards);
-                returnData[m].number.push(d)
+                totalDataByMonth[m].number.push(d)
             }
     
             if(timeCards.find(c => c['编号'] === d['卡类'])) {
@@ -55,11 +55,40 @@ module.exports = handleSales = (salesData, numberCards, timeCards) => {
                 } else {
                     d.unitPrice = 0;
                 }
-                returnData[m].time.push(d)
+                totalDataByMonth[m].time.push(d)
             }
         });
         
     });
 
+    return totalDataByMonth;
+}
+
+const getTotalData = (data, numberCards, timeCards) => {
+    const returnData = {
+        number: [],
+        time: []
+    };
+    data.forEach(d => {
+        if(numberCards.find(c => c['编号'] === d['卡类'])) {
+            d.unitPrice = calculateNumberUnitPrice(d, numberCards);
+            returnData.number.push(d)
+        }
+
+        if(timeCards.find(c => c['编号'] === d['卡类'])) {
+            if (!!d['开卡时间'] && !!d['结束时间']) {
+                d.unitPrice = calculateTimeUnitPrice(d);
+            } else {
+                d.unitPrice = 0;
+            }
+            returnData.time.push(d)
+        }
+    });
+
     return returnData;
 }
+
+module.exports = (salesData, numberCards, timeCards) => ({
+    totalData: getTotalData(salesData, numberCards, timeCards),
+    totalDataByMonth: getTotalDataByMonth(salesData, numberCards, timeCards)
+});
